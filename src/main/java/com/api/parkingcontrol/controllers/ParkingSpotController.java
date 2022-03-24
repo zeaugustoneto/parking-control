@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -89,6 +90,31 @@ public class ParkingSpotController {
 		}
 		parkingSpotService.delete(parkingSpotModelOptional.get());
 		return ResponseEntity.status(HttpStatus.OK).body("Parking Spot deleted successfully.");
+	}
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<Object> updateParkingSpot(@PathVariable(value = "id") UUID id,
+													@RequestBody @Valid ParkingSpotDto parkingSpotDto){ //validação do dto para fazer as mudanças
+		Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
+		if(!parkingSpotModelOptional.isPresent()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parking Spot not found.");
+		}
+	
+		
+		//há dois modos de usar o PUT para atualizações
+		//1 modo 
+		//var parkingSpotModel = parkingSpotModelOptional.get(); //aproveita o registro optional mas nao inicia, é apenas um aproveitamento
+		// e atualiza um por um como abaixo, pois não há como saber qual campo vai ser atualizado
+		//parkingSpotModel.setParkingSpotNumber(parkingSpotDto.getParkingSpotNumber());
+		// -----------------------------------------------------
+		//2 modo
+		var parkingSpotModel = new ParkingSpotModel(); //usado apenas no escopo definido // inves de obter o optional, é possivel criar uma nova instancia
+		//de parking model, fazer a conversao com beanutils como no método POST, seta apenas o id e a registration date para permanecer
+		BeanUtils.copyProperties(parkingSpotDto, parkingSpotModel);
+		parkingSpotModel.setId(parkingSpotModelOptional.get().getId());
+		parkingSpotModel.setRegistrationDate(parkingSpotModelOptional.get().getRegistrationDate());
+		
+		return ResponseEntity.status(HttpStatus.OK).body(parkingSpotService.save(parkingSpotModel));
 	}
 	
 	
