@@ -55,6 +55,13 @@ public class ParkingSpotService {
 		// TODO Auto-generated method stub
 		return parkingSpotRepository.findById(id);
 	}
+
+	@Transactional //usado para deleções em cascata(garantir que se algo der errado, ainda há o rollback)
+	public void delete(ParkingSpotModel parkingSpotModel) {
+		// TODO Auto-generated method stub
+		parkingSpotRepository.delete(parkingSpotModel);
+		
+	}
 	
 	
 	
